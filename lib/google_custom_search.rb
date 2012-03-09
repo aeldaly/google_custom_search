@@ -14,7 +14,8 @@ module GoogleCustomSearch
   ##
   # Search the site.
   #
-  def search(query, offset = 0, length = 20)
+  def search(query, page = 1, length = 20)
+    offset = page * length
     
     # Get and parse results.
     url = url(query, offset, length)
@@ -23,7 +24,7 @@ module GoogleCustomSearch
 
     # Extract and return search result data, if exists.
     if data['RES']
-      ResultSet.create(data)
+      ResultSet.create(data, page, length)
     else
       ResultSet.create_empty()
     end

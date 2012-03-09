@@ -2,14 +2,15 @@
 # Simple class to hold a collection of search result data.
 #
 class GoogleCustomSearch::ResultSet
-  attr_reader :time, :total, :pages, :suggestion, :labels
+  attr_reader :time, :total, :pages, :suggestion, :labels, :current_page, :limit_value, :num_pages
 
-  def self.create(xml_hash)
+  def self.create(xml_hash, page, per_page)
     self.new(xml_hash['TM'].to_f,
              xml_hash['RES']['M'].to_i,
              parse_results(xml_hash['RES']['R']),
              spelling = xml_hash['SPELLING'] ? spelling['SUGGESTION'] : nil,
-             parse_labels(xml_hash))
+             parse_labels(xml_hash),
+             page, per_page)
   end
 
   def self.create_empty
@@ -32,8 +33,11 @@ class GoogleCustomSearch::ResultSet
     end
   end
 
-  def initialize(time, total, pages, suggestion, labels)
-    @time, @total, @pages, @suggestion, @labels = time, total, pages, suggestion, labels
+  def initialize(time, total, pages, suggestion, labels, page = 1, per_page = 20)
+    @time, @total, @pages, @suggestion, @labels, @current_page = time, total, pages, suggestion, labels, page
+    @limit_value = per_page
+    @num_pages = (total / per_page).ceil
   end
+  
 end
   
