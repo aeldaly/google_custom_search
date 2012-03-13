@@ -14,4 +14,5 @@ Gem::Specification.new do |s|
   s.description = "Ruby interface to Google Custom Search Engine. Works with the paid version of CSE where you get results in XML format."
   s.files       = `git ls-files`.split("\n") - %w[google_custom_search.gemspec Gemfile init.rb]
   s.require_paths = ["lib"]
+  s.add_dependency %q<kaminari>, ["0.13.0"]
 end

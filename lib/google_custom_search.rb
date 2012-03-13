@@ -24,7 +24,7 @@ module GoogleCustomSearch
 
     # Extract and return search result data, if exists.
     if data['RES']
-      ResultSet.create(data, page, length)
+      ResultSet.create(data, offset, length)
     else
       ResultSet.create_empty()
     end
