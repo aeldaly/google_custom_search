@@ -16,8 +16,8 @@ module GoogleCustomSearch
   ##
   # Search the site.
   #
-  def search(query, page = 1, length = 20)
-    offset = page * length
+  def search(query, page = 1, length = 10)
+    offset = (page - 1) * length
     
     # Get and parse results.
     url = url(query, offset, length)
@@ -36,16 +36,17 @@ module GoogleCustomSearch
   ##
   # Build search request URL.
   #
-  def url(query, offset = 0, length = 20)
+  def url(query, offset = 0, length = 10)
+    length = [length, 10].min
     params = {
-      :q      => query,
-      # :start  => offset,
-      # :num    => length,
+      q:      query,
+      :num    => length,
       # :client => "google-csbe",
       # :output => "xml_no_dtd"
     }
+    params.merge!({start:offset}) if offset > 0
     params.merge!(GcsConfig.new.get_config)
-    
+
     begin
       params.merge!(GOOGLE_SEARCH_PARAMS)
     rescue NameError

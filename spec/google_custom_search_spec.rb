@@ -22,5 +22,24 @@ describe GoogleCustomSearch do
     end
     # (label_set & results.labels.keys.to_set).should_not be_empty
   end
+
+  it "should paginate" do
+    page1 = GoogleCustomSearch.search('wine')
+    page2 = GoogleCustomSearch.search('wine', 2)
+
+    page1.pages.first.url.should_not eql(page2.pages.first.url)
+  end
+
+  it "should return 10 results by default" do
+    GoogleCustomSearch.search('wine').pages.size.should eql(10)
+  end
+
+  it "should max out at 10 results even if a bigger number is supplied" do
+    GoogleCustomSearch.search('wine', 1, 30).pages.size.should eql(10)
+  end
+
+  it "should return 5 results if asked to" do
+    GoogleCustomSearch.search('wine', 1, 5).pages.size.should eql(5)
+  end
 end
 
