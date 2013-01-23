@@ -1,6 +1,8 @@
 ##
 # Simple class to hold a collection of search result data.
 #
+require 'kaminari'
+
 class GoogleCustomSearch::ResultSet
   include Kaminari::ConfigurationMethods::ClassMethods
   

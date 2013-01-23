@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
 
-require 'kaminari'
 require 'google_custom_search'
 
 # Google Custom Search (Google Jobs) :)
