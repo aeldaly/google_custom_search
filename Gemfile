@@ -4,4 +4,6 @@ gemspec
 group :test do
   gem 'rake'
   gem 'activesupport'
+  gem 'rspec'
+  gem 'debugger'
 end

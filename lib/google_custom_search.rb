@@ -2,12 +2,14 @@
 # Add search functionality (via Google Custom Search). Protocol reference at:
 # http://www.google.com/coop/docs/cse/resultsxml.html
 #
-require 'net/http'
+require 'open-uri'
+require 'timeout'
 require 'active_support/core_ext'
 
 module GoogleCustomSearch
   autoload :ResultSet, 'result_set'
   autoload :Result, 'result'
+  autoload :GcsConfig, 'gcs_config'
 
   extend self
 
@@ -19,11 +21,10 @@ module GoogleCustomSearch
     
     # Get and parse results.
     url = url(query, offset, length)
-    return nil unless xml = fetch_xml(url)
-    data = Hash.from_xml(xml)['GSP']
-
+    return nil unless data = fetch(url)
+    
     # Extract and return search result data, if exists.
-    if data['RES']
+    if data['items'].present?
       ResultSet.create(data, offset, length)
     else
       ResultSet.create_empty()
@@ -38,30 +39,36 @@ module GoogleCustomSearch
   def url(query, offset = 0, length = 20)
     params = {
       :q      => query,
-      :start  => offset,
-      :num    => length,
-      :client => "google-csbe",
-      :output => "xml_no_dtd",
-      :cx     => GOOGLE_SEARCH_CX
+      # :start  => offset,
+      # :num    => length,
+      # :client => "google-csbe",
+      # :output => "xml_no_dtd"
     }
+    params.merge!(GcsConfig.new.get_config)
+    
     begin
       params.merge!(GOOGLE_SEARCH_PARAMS)
     rescue NameError
     end
-    "http://www.google.com/search?" + params.to_query
+    "https://www.googleapis.com/customsearch/v1?" + params.to_query
   end
   
   ##
   # Query Google, and make sure it responds.
   #
-  def fetch_xml(url)
+  def fetch(url)
     puts url if $debug
     begin
       resp = nil
-      timeout(3) do
-        resp = Net::HTTP.get_response(URI.parse(url))
+      Timeout::timeout(3) do
+        resp = open(url)
       end
-    rescue SocketError, TimeoutError; end
-    (resp and resp.code == "200") ? resp.body : nil
+    rescue Timeout::Error; end
+    if resp and resp.status.first == "200"
+      response = resp.read
+      JSON.parse(response)
+    else
+      nil
+    end
   end
 end

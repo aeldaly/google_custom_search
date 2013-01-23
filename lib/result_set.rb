@@ -9,13 +9,13 @@ class GoogleCustomSearch::ResultSet
   
   alias :total_count :total
 
-
-  def self.create(xml_hash, offset, per_page)
-    self.new(xml_hash['TM'].to_f,
-             xml_hash['RES']['M'].to_i,
-             parse_results(xml_hash['RES']['R']),
-             spelling = xml_hash['SPELLING'] ? spelling['SUGGESTION'] : nil,
-             parse_labels(xml_hash),
+  def self.create(hash, offset, per_page)
+    search_info = hash['searchInformation']
+    self.new(search_info['searchTime'].to_f,
+             search_info['totalResults'].to_i,
+             parse_results(hash['items']),
+             nil,
+             parse_labels(hash),
              offset, per_page)
   end
 
@@ -27,8 +27,8 @@ class GoogleCustomSearch::ResultSet
     GoogleCustomSearch::Result.parse(res_r)
   end
 
-  def self.parse_labels(xml_hash)
-    return {} unless context = xml_hash['Context'] and facets = context['Facet']
+  def self.parse_labels(hash)
+    return {} unless context = hash['Context'] and facets = context['Facet']
     facets.map do |f|
       (fi = f['FacetItem']).is_a?(Array) ? fi : [fi]
     end.inject({}) do |h, facet_item|
